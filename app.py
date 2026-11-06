@@ -75,10 +75,9 @@ def make_gauge(value):
     return f"{value:.2f}"
 
 st.title(" Intelligent Fingerprint Anti-Spoofing System")
-st.caption("College mini-project prototype • Genuine vs. silicone-spoof classification")
+st.caption("• Genuine vs. silicone-spoof classification")
 st.warning(
-    "Research/demo limitation: the bundled dataset is synthetically generated. "
-    "This application demonstrates a machine-learning workflow; it is not a validated biometric security system "
+    "Demo limitation: the bundled dataset is synthetically generated."
     "and must not be used to grant or deny real-world access."
 )
 
@@ -102,7 +101,7 @@ if page == "Overview":
     c1, c2, c3 = st.columns(3)
     c1.metric("Sample records", f"{len(data):,}")
     c2.metric("Feature indicators", len(FEATURES))
-    c3.metric("Held-out demo accuracy", f"{test_acc:.1%}")
+    c3.metric("Held-out demo accuracy", f"{test_acc:.1%}"
     st.caption("Accuracy is measured on a held-out portion of synthetic data only; it does not estimate real-world performance.")
     left, right = st.columns(2)
     with left:
