@@ -115,36 +115,52 @@ if page == "Overview":
 
 elif page == "Analyze sample features":
     st.subheader("Analyze fingerprint feature indicators")
-    st.write("Adjust the example values to see how the model responds. Values range from 0.00 to 1.00.")
-    defaults = {
-        "ridge_clarity": 0.72, "pore_visibility": 0.68, "texture_entropy": 0.63,
-        "ridge_continuity": 0.70, "specular_reflection": 0.18, "surface_uniformity": 0.42
-    }
-    spoof_defaults = {
-        "ridge_clarity": 0.48, "pore_visibility": 0.31, "texture_entropy": 0.42,
-        "ridge_continuity": 0.80, "specular_reflection": 0.60, "surface_uniformity": 0.76
-    }
-    preset = st.selectbox("Choose a starting example", ["Genuine-like example", "Silicone-spoof-like example", "Custom"])
-    values = defaults if preset == "Genuine-like example" else spoof_defaults if preset == "Silicone-spoof-like example" else defaults
+    st.write(
+        "Adjust the six feature values. The Random Forest model will classify the sample "
+        "using the values you enter and the patterns learned from the synthetic dataset."
+    )
+
+    # Start each feature at the median value in the synthetic dataset.
+    # The user can adjust the sliders; every change reruns this page and updates the prediction.
+    starting_values = data[FEATURES].median().to_dict()
+
     entered = {}
     col1, col2 = st.columns(2)
     for i, feature in enumerate(FEATURES):
         target = col1 if i < 3 else col2
         with target:
-            entered[feature] = st.slider(feature.replace("_", " ").title(), 0.0, 1.0, float(values[feature]), 0.01)
-    if st.button("Classify sample", type="primary", use_container_width=True):
-        row = pd.DataFrame([entered], columns=FEATURES)
-        pred = model.predict(row)[0]
-        proba = model.predict_proba(row)[0]
-        classes = list(model.classes_)
-        score = float(proba[classes.index(pred)])
-        if pred == "Genuine":
-            st.success(f"Model prediction: {pred}")
-        else:
-            st.error(f"Model prediction: {pred} (possible spoof)")
-        st.metric("Model confidence on this synthetic-feature model", f"{score:.1%}")
-        st.dataframe(pd.DataFrame({"Feature": list(entered.keys()), "Value": list(entered.values())}), use_container_width=True, hide_index=True)
-        st.caption("The confidence is a model score, not a calibrated probability of biometric authenticity.")
+            entered[feature] = st.slider(
+                feature.replace("_", " ").title(),
+                min_value=0.0,
+                max_value=1.0,
+                value=float(np.clip(starting_values[feature], 0.0, 1.0)),
+                step=0.01,
+                key=f"feature_input_{feature}"
+            )
+
+    # Predict immediately whenever a slider changes; no preset or classify button is needed.
+    row = pd.DataFrame([entered], columns=FEATURES)
+    pred = model.predict(row)[0]
+    proba = model.predict_proba(row)[0]
+    classes = list(model.classes_)
+    score = float(proba[classes.index(pred)])
+
+    st.markdown("#### Classification result")
+    if pred == "Genuine":
+        st.success("Model prediction: Genuine")
+    else:
+        st.error("Model prediction: Spoof (possible silicone replica)")
+
+    st.metric("Model confidence on this synthetic-feature model", f"{score:.1%}")
+    st.dataframe(
+        pd.DataFrame({"Feature": list(entered.keys()), "Value": list(entered.values())}),
+        use_container_width=True,
+        hide_index=True
+    )
+    st.caption(
+        "The result is recalculated from the six current slider values. The model was trained on synthetic "
+        "feature records, so this is an educational demonstration and not a validated fingerprint security test."
+    )
 
 elif page == "Analyze an image":
     st.subheader("Analyze an uploaded fingerprint image")
