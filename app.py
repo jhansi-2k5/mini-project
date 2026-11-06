@@ -101,7 +101,7 @@ if page == "Overview":
     c1, c2, c3 = st.columns(3)
     c1.metric("Sample records", f"{len(data):,}")
     c2.metric("Feature indicators", len(FEATURES))
-    c3.metric("Held-out demo accuracy", f"{test_acc:.1%}"
+    c3.metric("Held-out demo accuracy", f"{test_acc:.1%}")
     st.caption("Accuracy is measured on a held-out portion of synthetic data only; it does not estimate real-world performance.")
     left, right = st.columns(2)
     with left:
