@@ -74,7 +74,7 @@ def image_features(uploaded_file):
 def make_gauge(value):
     return f"{value:.2f}"
 
-st.title("🔎 Intelligent Fingerprint Anti-Spoofing System")
+st.title(" Intelligent Fingerprint Anti-Spoofing System")
 st.caption("College mini-project prototype • Genuine vs. silicone-spoof classification")
 st.warning(
     "Research/demo limitation: the bundled dataset is synthetically generated. "
